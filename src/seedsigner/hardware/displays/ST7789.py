@@ -38,6 +38,10 @@ class ST7789(BaseDisplayDriver):
         self.init()
 
 
+    def _backlight_pin(self):
+        return self._bl
+
+
     """    Write register address and data     """
     def command(self, cmd):
         GPIO.output(self._dc, GPIO.LOW)

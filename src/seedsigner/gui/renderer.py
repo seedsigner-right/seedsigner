@@ -62,10 +62,25 @@ class Renderer(ConfigurableSingleton):
             self.canvas_width = self.disp.height
             self.canvas_height = self.disp.width
 
+        # A new driver starts at full brightness; the setting is applied with the next frame.
+        self._brightness = None
+
         self.canvas = Image.new('RGB', (self.canvas_width, self.canvas_height))
         self.draw = ImageDraw.Draw(self.canvas)
 
         self.lock.release()
+
+
+    def _apply_brightness(self):
+        # Read with every frame, so a change in Settings shows at once; the
+        # driver is only told when the level actually changes.
+        try:
+            level = int(Settings.get_instance().get_value(SettingsConstants.SETTING__DISPLAY_BRIGHTNESS))
+        except Exception:
+            level = SettingsConstants.DISPLAY_BRIGHTNESS__100
+        if level != getattr(self, "_brightness", None):
+            self._brightness = level
+            self.disp.set_brightness(level)
 
 
     @staticmethod
@@ -79,6 +94,7 @@ class Renderer(ConfigurableSingleton):
     def show_image(self, image=None, alpha_overlay=None, show_direct=False):
         if show_direct:
             # Use the incoming image as the canvas and immediately render
+            self._apply_brightness()
             self.disp.show_image(self._turned(image), 0, 0)
             return
 
@@ -91,6 +107,7 @@ class Renderer(ConfigurableSingleton):
             # Always write to the current canvas, rather than trying to replace it
             self.canvas.paste(image)
 
+        self._apply_brightness()
         self.disp.show_image(self._turned(self.canvas), 0, 0)
 
 

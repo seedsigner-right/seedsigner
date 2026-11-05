@@ -236,6 +236,17 @@ class SettingsConstants:
         (DISPLAY_ROTATION__180, _mft("180°")),
     ]
 
+    # The screen's backlight, for low light. 10% is the floor so the screen can't
+    # go dark by accident.
+    DISPLAY_BRIGHTNESS__100 = 100
+    ALL_DISPLAY_BRIGHTNESSES = [
+        (100, "100%"),
+        (75, "75%"),
+        (50, "50%"),
+        (25, "25%"),
+        (10, "10%"),
+    ]
+
     CAMERA_ROTATION__0 = 0
     CAMERA_ROTATION__90 = 90
     CAMERA_ROTATION__180 = 180
@@ -347,6 +358,7 @@ class SettingsConstants:
     SETTING__DISPLAY_CONFIGURATION = "display_config"
     SETTING__DISPLAY_COLOR_INVERTED = "color_inverted"
     SETTING__DISPLAY_ROTATION = "display_rotation"
+    SETTING__DISPLAY_BRIGHTNESS = "display_brightness"
 
     SETTING__NETWORK = "network"
     SETTING__QR_DENSITY = "qr_density"
@@ -758,6 +770,16 @@ class SettingsDefinition:
                       visibility=SettingsConstants.VISIBILITY__HARDWARE,
                       selection_options=SettingsConstants.ALL_DISPLAY_ROTATIONS,
                       default_value=SettingsConstants.DISPLAY_ROTATION__180),
+
+        SettingsEntry(category=SettingsConstants.CATEGORY__SYSTEM,
+                      attr_name=SettingsConstants.SETTING__DISPLAY_BRIGHTNESS,
+                      abbreviated_name="bright",
+                      # TRANSLATOR_NOTE: Hardware settings option to dim the screen's backlight, e.g. for use in low light.
+                      display_name=_mft("Screen brightness"),
+                      type=SettingsConstants.TYPE__SELECT_1,
+                      visibility=SettingsConstants.VISIBILITY__HARDWARE,
+                      selection_options=SettingsConstants.ALL_DISPLAY_BRIGHTNESSES,
+                      default_value=SettingsConstants.DISPLAY_BRIGHTNESS__100),
 
 
         # Developer options

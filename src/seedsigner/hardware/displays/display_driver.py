@@ -44,12 +44,48 @@ class BaseDisplayDriver:
         raise Exception("show_image() must be implemented in child classes")
 
 
+    def _backlight_pin(self):
+        """
+        The physical (BOARD) pin driving the backlight, for drivers that know
+        it. None means the backlight can't be dimmed.
+        """
+        return None
+
+
+    def set_brightness(self, percent: int):
+        """
+        Backlight level in percent. Dimmed with 1 kHz software PWM, the way
+        Waveshare's own demo code drives the backlight of these hats; at 100%
+        the pin is simply held high, as before, with no PWM running.
+        Never below 10%, so the screen can't be turned dark by accident.
+        """
+        pin = self._backlight_pin()
+        if pin is None:
+            return
+        import RPi.GPIO as GPIO
+        percent = max(10, min(100, int(percent)))
+        pwm = getattr(self, "_bl_pwm", None)
+        if percent >= 100:
+            if pwm is not None:
+                pwm.stop()
+                self._bl_pwm = None
+            GPIO.output(pin, GPIO.HIGH)
+        elif pwm is None:
+            self._bl_pwm = GPIO.PWM(pin, 1000)
+            self._bl_pwm.start(percent)
+        else:
+            pwm.ChangeDutyCycle(percent)
+
+
     def cleanup(self):
         """
         Cleanup resources used by the display driver.
-        Implementation in child classes is optional.
+        Child classes that override this should call super().cleanup().
         """
-        pass
+        pwm = getattr(self, "_bl_pwm", None)
+        if pwm is not None:
+            pwm.stop()
+            self._bl_pwm = None
 
 
 

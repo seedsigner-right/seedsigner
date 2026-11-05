@@ -326,6 +326,9 @@ class ST7789(BaseDisplayDriver):
             GPIO.output(backlight, GPIO.HIGH)
             # backlight.value(1)
 
+    def _backlight_pin(self):
+        return self.backlight
+
     @staticmethod
     def _find_rotations(width, height):
         for display in _SUPPORTED_DISPLAYS:
